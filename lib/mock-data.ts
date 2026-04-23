@@ -26,7 +26,7 @@ const destinationProfiles: Record<
     },
     basePacking: ["Waterproof shoes", "Layering knit", "Foldable umbrella"]
   },
-  new york: {
+  "new york": {
     timezone: "America/New_York",
     weather: {
       summary: "Warm afternoons and bright weather, with one evening thunder risk.",
