@@ -1,20 +1,14 @@
-import { signIn, signOut } from "@/auth";
+import Link from "next/link";
+import { signOut } from "@/auth";
 
 export function SignInButton() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn("google", { redirectTo: "/my-trips" });
-      }}
+    <Link
+      href="/login"
+      className="rounded-full bg-ink px-5 py-3 text-sm font-medium text-white transition hover:bg-ink/90"
     >
-      <button
-        type="submit"
-        className="rounded-full bg-ink px-5 py-3 text-sm font-medium text-white transition hover:bg-ink/90"
-      >
-        Sign in with Google
-      </button>
-    </form>
+      Sign in with Google
+    </Link>
   );
 }
 
