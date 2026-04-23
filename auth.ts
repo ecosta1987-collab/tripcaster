@@ -3,6 +3,10 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 
+function hasUserId(user: { id?: string | null }): user is { id: string } {
+  return typeof user.id === "string" && user.id.length > 0;
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true,
@@ -20,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     session({ session, user }) {
-      if (session.user) {
+      if (session.user && hasUserId(user)) {
         session.user.id = user.id;
       }
 
@@ -29,6 +33,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async createUser({ user }) {
+      if (!hasUserId(user)) {
+        return;
+      }
+
       await prisma.preference.upsert({
         where: { userId: user.id },
         update: {},
