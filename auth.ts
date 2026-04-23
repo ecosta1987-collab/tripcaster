@@ -7,18 +7,24 @@ function hasUserId(user: { id?: string | null }): user is { id: string } {
   return typeof user.id === "string" && user.id.length > 0;
 }
 
+const hasGoogleAuthConfig = Boolean(
+  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+);
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true,
   session: {
     strategy: "database"
   },
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID ?? "",
-      clientSecret: process.env.AUTH_GOOGLE_SECRET ?? ""
-    })
-  ],
+  providers: hasGoogleAuthConfig
+    ? [
+        Google({
+          clientId: process.env.AUTH_GOOGLE_ID as string,
+          clientSecret: process.env.AUTH_GOOGLE_SECRET as string
+        })
+      ]
+    : [],
   pages: {
     signIn: "/login"
   },
