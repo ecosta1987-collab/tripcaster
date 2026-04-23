@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum EventType {
+  MEETING
+  FLIGHT
+  DINNER
+  WORKSHOP
+}
+
+enum PackingStyle {
+  LIGHT
+  STANDARD
+  EXTENDED
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  trips         Trip[]
+  preference    Preference?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Preference {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  homeTimezone    String       @default("Europe/Rome")
+  favoriteAirport String?
+  packingStyle    PackingStyle @default(STANDARD)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Trip {
+  id          String        @id @default(cuid())
+  userId      String
+  destination String
+  startDate   DateTime
+  endDate     DateTime
+  timezone    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events      TripEvent[]
+  packingItems PackingItem[]
+
+  @@index([userId, startDate])
+}
+
+model TripEvent {
+  id        String    @id @default(cuid())
+  tripId     String
+  title     String
+  date      DateTime
+  startTime String
+  endTime   String
+  type      EventType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trip      Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, date])
+}
+
+model PackingItem {
+  id        String   @id @default(cuid())
+  tripId    String
+  label     String
+  createdAt DateTime @default(now())
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}

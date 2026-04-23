@@ -1,6 +1,6 @@
 export type EventType = "meeting" | "flight" | "dinner" | "workshop";
 
-export type CalendarEvent = {
+export type TripEvent = {
   id: string;
   title: string;
   date: string;
@@ -8,6 +8,8 @@ export type CalendarEvent = {
   endTime: string;
   type: EventType;
 };
+
+export type CalendarEvent = TripEvent;
 
 export type WeatherSummary = {
   summary: string;
@@ -17,6 +19,12 @@ export type WeatherSummary = {
   note: string;
 };
 
+export type UserPreference = {
+  homeTimezone: string;
+  favoriteAirport: string | null;
+  packingStyle: "light" | "standard" | "extended";
+};
+
 export type Trip = {
   id: string;
   destination: string;
@@ -24,11 +32,13 @@ export type Trip = {
   endDate: string;
   timezone: string;
   homeTimezone: string;
-  events: CalendarEvent[];
+  events: TripEvent[];
+  packingList: string[];
   weather: WeatherSummary;
 };
 
 export type TripsResponse = {
+  preferences: UserPreference;
   trips: Trip[];
 };
 
@@ -38,4 +48,8 @@ export type WeatherResponse = {
 
 export type PackingListResponse = {
   packingList: string[];
+};
+
+export type PreferencesResponse = {
+  preferences: UserPreference;
 };
