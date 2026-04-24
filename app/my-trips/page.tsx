@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/auth-buttons";
-import { TripPlanner } from "@/components/trip-planner";
+import { MyTripsOverview } from "@/components/my-trips-overview";
 import Link from "next/link";
 
 export default async function MyTripsPage() {
@@ -19,7 +19,10 @@ export default async function MyTripsPage() {
         </Link>
         <SignOutButton />
       </div>
-      <TripPlanner userName={session.user.name ?? "Traveler"} userEmail={session.user.email ?? ""} />
+      <MyTripsOverview
+        userName={session.user.name ?? "Traveler"}
+        userEmail={session.user.email ?? ""}
+      />
     </>
   );
 }
