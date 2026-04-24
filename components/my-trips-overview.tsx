@@ -19,11 +19,29 @@ export function MyTripsOverview({ userName, userEmail }: MyTripsOverviewProps) {
     void loadTrips();
   }, []);
 
+  async function parseApiResponse(response: Response) {
+    const rawText = await response.text();
+
+    if (!rawText.trim()) {
+      return { error: "The server returned an empty response." };
+    }
+
+    try {
+      return JSON.parse(rawText) as TripsResponse | { error?: string };
+    } catch {
+      return {
+        error: response.ok
+          ? "The server returned an invalid response."
+          : "The server returned an unexpected error page."
+      };
+    }
+  }
+
   async function loadTrips() {
     setIsLoading(true);
     try {
       const response = await fetch("/api/trips");
-      const data = (await response.json()) as TripsResponse | { error?: string };
+      const data = await parseApiResponse(response);
 
       if (!response.ok || !("trips" in data)) {
         throw new Error(("error" in data && data.error) || "Unable to load your trips.");
@@ -53,10 +71,10 @@ export function MyTripsOverview({ userName, userEmail }: MyTripsOverviewProps) {
         })
       });
 
-      const data = (await response.json()) as { error?: string };
+      const data = await parseApiResponse(response);
 
       if (!response.ok) {
-        throw new Error(data.error || "Unable to create trip.");
+        throw new Error(("error" in data && data.error) || "Unable to create trip.");
       }
 
       await loadTrips();

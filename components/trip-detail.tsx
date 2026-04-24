@@ -51,13 +51,31 @@ async function patchTrip(tripId: string, patch: Record<string, unknown>) {
     body: JSON.stringify(patch)
   });
 
-  const data = (await response.json()) as TripResponse | { error?: string };
+  const data = await parseApiResponse(response);
 
   if (!response.ok || !("trip" in data)) {
     throw new Error(("error" in data && data.error) || "Unable to update trip.");
   }
 
   return data.trip;
+}
+
+async function parseApiResponse(response: Response) {
+  const rawText = await response.text();
+
+  if (!rawText.trim()) {
+    return { error: "The server returned an empty response." };
+  }
+
+  try {
+    return JSON.parse(rawText) as TripResponse | { error?: string };
+  } catch {
+    return {
+      error: response.ok
+        ? "The server returned an invalid response."
+        : "The server returned an unexpected error page."
+    };
+  }
 }
 
 function formatLocalNow(timezone: string) {
@@ -231,7 +249,7 @@ export function TripDetail({ tripId, userName, initialTab }: TripDetailProps) {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/trips/${tripId}`);
-      const data = (await response.json()) as TripResponse | { error?: string };
+      const data = await parseApiResponse(response);
 
       if (!response.ok || !("trip" in data)) {
         throw new Error(("error" in data && data.error) || "Unable to load trip.");

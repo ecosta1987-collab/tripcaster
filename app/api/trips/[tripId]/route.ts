@@ -6,20 +6,27 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ tripId: string }> }
 ) {
-  const session = await auth();
+  try {
+    const session = await auth();
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { tripId } = await context.params;
+    const trip = await getUserTrip(session.user.id, tripId);
+
+    if (!trip) {
+      return NextResponse.json({ error: "Trip not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ trip });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to load trip." },
+      { status: 500 }
+    );
   }
-
-  const { tripId } = await context.params;
-  const trip = await getUserTrip(session.user.id, tripId);
-
-  if (!trip) {
-    return NextResponse.json({ error: "Trip not found." }, { status: 404 });
-  }
-
-  return NextResponse.json({ trip });
 }
 
 export async function PATCH(

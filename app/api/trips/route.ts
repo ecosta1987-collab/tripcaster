@@ -3,14 +3,23 @@ import { auth } from "@/auth";
 import { createUserTrip, listUserTrips } from "@/lib/trip-service";
 
 export async function GET() {
-  const session = await auth();
+  try {
+    const session = await auth();
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const result = await listUserTrips(session.user.id);
+    return NextResponse.json(result);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Unable to load your trips."
+      },
+      { status: 500 }
+    );
   }
-
-  const result = await listUserTrips(session.user.id);
-  return NextResponse.json(result);
 }
 
 export async function POST(request: Request) {
