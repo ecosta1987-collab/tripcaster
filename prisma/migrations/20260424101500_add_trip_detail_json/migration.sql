@@ -1,12 +1,12 @@
 ALTER TABLE "Trip"
-ADD COLUMN "title" TEXT NOT NULL DEFAULT 'Untitled Trip',
-ADD COLUMN "description" TEXT,
-ADD COLUMN "placeInfo" JSONB,
-ADD COLUMN "steps" JSONB,
-ADD COLUMN "travelCars" JSONB,
-ADD COLUMN "flightSegments" JSONB,
-ADD COLUMN "agendaItems" JSONB,
-ADD COLUMN "packingSections" JSONB;
+ADD COLUMN IF NOT EXISTS "title" TEXT NOT NULL DEFAULT 'Untitled Trip',
+ADD COLUMN IF NOT EXISTS "description" TEXT,
+ADD COLUMN IF NOT EXISTS "placeInfo" JSONB,
+ADD COLUMN IF NOT EXISTS "steps" JSONB,
+ADD COLUMN IF NOT EXISTS "travelCars" JSONB,
+ADD COLUMN IF NOT EXISTS "flightSegments" JSONB,
+ADD COLUMN IF NOT EXISTS "agendaItems" JSONB,
+ADD COLUMN IF NOT EXISTS "packingSections" JSONB;
 
 UPDATE "Trip"
 SET "title" = "destination"
